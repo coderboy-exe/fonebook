@@ -31,3 +31,6 @@ C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\obj\Debug\net7.0\refint\fonebook
 C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\obj\Debug\net7.0\fonebook.pdb
 C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\obj\Debug\net7.0\fonebook.genruntimeconfig.cache
 C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\obj\Debug\net7.0\ref\fonebook.dll
+C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.dll
+C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.Abstractions.dll
+C:\Users\Dell\OneDrive\Desktop\C_sharp\fonebook\bin\Debug\net7.0\Microsoft.EntityFrameworkCore.InMemory.dll
