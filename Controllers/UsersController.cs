@@ -81,7 +81,7 @@ namespace fonebook.Controllers
             }
         }
 
-        [HttpPost("{id:guid}")]
+        [HttpDelete("{id:guid}")]
         public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
         {
             var existingUser = await dbContext.Users.FindAsync(id);

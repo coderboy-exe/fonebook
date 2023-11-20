@@ -1,12 +1,13 @@
 {
   "version": 2,
-  "dgSpecHash": "vi1RPakVKMhLDMYUBiICnormIR/X7ypBPHvwzKp7nhpSXO91Fqsl3w+zv4fkMOADQqVoItsljzlnFTqHxTcGaA==",
+  "dgSpecHash": "e7UHov6LlHIaZRxXnpH2AAfDvgH5sv1yqSQWQrXutZtDv8yKv7QUzBFo0H+jVCQ2plOjOIMJEDR4Q6rsogOSYg==",
   "success": true,
   "projectFilePath": "C:\\Users\\Dell\\OneDrive\\Desktop\\C_sharp\\fonebook\\fonebook.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Dell\\.nuget\\packages\\azure.core\\1.25.0\\azure.core.1.25.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\azure.identity\\1.7.0\\azure.identity.1.7.0.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
+    "C:\\Users\\Dell\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\7.0.14\\microsoft.aspnetcore.authentication.jwtbearer.7.0.14.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.aspnetcore.openapi\\7.0.11\\microsoft.aspnetcore.openapi.7.0.11.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.bcl.asyncinterfaces\\1.1.1\\microsoft.bcl.asyncinterfaces.1.1.1.nupkg.sha512",
     "C:\\Users\\Dell\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

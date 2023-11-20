@@ -71,6 +71,7 @@ namespace fonebook.Controllers
                 existingContact.LastName = contactToUpdate.LastName;
                 existingContact.Email = contactToUpdate.Email;
                 existingContact.Phone = contactToUpdate.Phone;
+                existingContact.Address = contactToUpdate.Address;
                 existingContact.UserId = contactToUpdate.UserId;
 
                 await dbContext.SaveChangesAsync();

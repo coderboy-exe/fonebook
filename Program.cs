@@ -10,8 +10,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddDbContext<FonebookAPIDbContext>(options => 
+/*builder.Services.AddDbContext<FonebookAPIDbContext>(options => 
     options.UseInMemoryDatabase("FonebookDb")  
+); */
+builder.Services.AddDbContext<FonebookAPIDbContext>(options =>
+    options.UseSqlServer(builder.Configuration
+        .GetConnectionString("FonebookApiConnectionString"))
 );
 
 var app = builder.Build();
