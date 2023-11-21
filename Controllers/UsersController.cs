@@ -10,22 +10,22 @@ namespace fonebook.Controllers
     [Route("api/[controller]")]
     public class UsersController : Controller
     {
-        private readonly FonebookAPIDbContext dbContext;
+        private readonly FonebookAPIDbContext _dbContext;
 
         public UsersController(FonebookAPIDbContext dbContext)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
         }
         [HttpGet]
         public async Task<IActionResult> GetAllUsers()
         {
-            return Ok(await dbContext.Users.ToListAsync());
+            return Ok(await _dbContext.Users.ToListAsync());
         }
 
         [HttpPost("AddUser")]
         public async Task<IActionResult> AddUser(AddUserDto userToAdd)
         {
-            var existingUser = await dbContext.Users.FirstOrDefaultAsync(u =>
+            var existingUser = await _dbContext.Users.FirstOrDefaultAsync(u =>
                 u.Email == userToAdd.Email
             );
 
@@ -43,16 +43,16 @@ namespace fonebook.Controllers
                 Phone = userToAdd.Phone
             };
 
-            await dbContext.Users.AddAsync(user);
-            await dbContext.SaveChangesAsync();
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
 
             return Ok(user);
         }
 
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetSingleUser([FromRoute] Guid id)
+        [HttpGet("{userId:guid}")]
+        public async Task<IActionResult> GetSingleUser([FromRoute] Guid userId)
         {
-            var existingUser = await dbContext.Users.FindAsync(id);
+            var existingUser = await _dbContext.Users.FindAsync(userId);
             if (existingUser != null)
             {
                 return Ok(existingUser);
@@ -60,10 +60,10 @@ namespace fonebook.Controllers
             return NotFound();
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateUser([FromRoute] Guid id, AddUserDto userToUpdate)
+        [HttpPut("{userId:guid}")]
+        public async Task<IActionResult> UpdateUser([FromRoute] Guid userId, AddUserDto userToUpdate)
         {
-            var existingUser = await dbContext.Users.FindAsync(id);
+            var existingUser = await _dbContext.Users.FindAsync(userId);
             if (existingUser == null)
             {
                 return NotFound();
@@ -76,19 +76,19 @@ namespace fonebook.Controllers
                 existingUser.Password = userToUpdate.Password;
                 existingUser.Phone = userToUpdate.Phone;
 
-                await dbContext.SaveChangesAsync();
+                await _dbContext.SaveChangesAsync();
                 return Ok(existingUser);
             }
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteUser([FromRoute] Guid id)
+        [HttpDelete("{userId:guid}")]
+        public async Task<IActionResult> DeleteUser([FromRoute] Guid userId)
         {
-            var existingUser = await dbContext.Users.FindAsync(id);
+            var existingUser = await _dbContext.Users.FindAsync(userId);
             if (existingUser != null)
             {
-                dbContext.Remove(existingUser);
-                dbContext.SaveChanges();
+                _dbContext.Remove(existingUser);
+                _dbContext.SaveChanges();
                 return Ok(existingUser);
             }
 

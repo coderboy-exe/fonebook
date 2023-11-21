@@ -1,95 +1,123 @@
 ﻿using fonebook.Data;
 using fonebook.Dto;
 using fonebook.Models;
+using fonebook.Repositories.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace fonebook.Controllers
 {
+    [Authorize]
     [ApiController]
     [Route("api/[controller]")]
     public class ContactsController : Controller
     {
-        private readonly FonebookAPIDbContext dbContext;
+        private readonly FonebookAPIDbContext _dbContext;
+        private readonly IContactsService _contactsService;
 
-        public ContactsController(FonebookAPIDbContext dbContext)
+        public ContactsController(FonebookAPIDbContext dbContext, IContactsService contactsService)
         {
-            this.dbContext = dbContext;
+            _dbContext = dbContext;
+            _contactsService = contactsService;
         }
 
+        [AllowAnonymous]
         [HttpGet]
         public async Task<IActionResult> GetAllContacts()
         {
-            return Ok(await dbContext.Contacts.ToListAsync());
+            return Ok(await _dbContext.Contacts.ToListAsync());
+        }
+
+        [HttpGet("MyContacts")]
+        public async Task<IActionResult> GetAllMyContacts()
+        {
+            try
+            {
+                var authenticatedUser = User.FindFirstValue("userId");
+                Guid userId = Guid.Parse(authenticatedUser);
+
+                var contactsList = await _contactsService.GetAllContactsByUserId(userId);
+                return StatusCode(200, contactsList);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
 
         [HttpPost("")]
         public async Task<IActionResult> AddContact(AddContactDto contactToAdd)
         {
-            Contact contact = new Contact()
+            try
             {
-                Id = Guid.NewGuid(),
-                Address = contactToAdd.Address,
-                FirstName = contactToAdd.FirstName,
-                LastName = contactToAdd.LastName,
-                Email = contactToAdd.Email,
-                Phone = contactToAdd.Phone,
-                UserId = contactToAdd.UserId,
-            };
+                var authenticatedUser = User.FindFirstValue("userId");
+                Guid userId = Guid.Parse(authenticatedUser);
 
-            await dbContext.Contacts.AddAsync(contact);
-            await dbContext.SaveChangesAsync();
+                var newContact = await _contactsService.CreateContact(userId, contactToAdd);
+                return StatusCode(201, newContact);
 
-            return Ok(contact);
-        }
-
-        [HttpGet("{id:guid}")]
-        public async Task<IActionResult> GetSingleContact([FromRoute] Guid id)
-        {
-            var existingContact = await dbContext.Contacts.FindAsync(id);
-
-            if (existingContact == null)
-            {
-                return NotFound();
             }
-
-            return Ok(existingContact);
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
         }
 
-        [HttpPut("{id:guid}")]
-        public async Task<IActionResult> UpdateContact([FromRoute] Guid id, UpdateContactDto contactToUpdate)
+        [HttpGet("{contactId:guid}")]
+        public async Task<IActionResult> GetSingleContact([FromRoute] Guid contactId)
         {
-            var existingContact = await dbContext.Contacts.FindAsync(id);
-
-            if (existingContact == null) {
-                return NotFound();
-            }
-            else
+            try
             {
-                existingContact.FirstName = contactToUpdate.FirstName;
-                existingContact.LastName = contactToUpdate.LastName;
-                existingContact.Email = contactToUpdate.Email;
-                existingContact.Phone = contactToUpdate.Phone;
-                existingContact.Address = contactToUpdate.Address;
-                existingContact.UserId = contactToUpdate.UserId;
+                var contact = await _contactsService.GetContactById(contactId);
 
-                await dbContext.SaveChangesAsync();
-                return Ok(existingContact);
+                var authenticatedUser = User.FindFirstValue("userId");
+
+                if (contact.UserId == Guid.Parse(authenticatedUser))
+                {
+                    return StatusCode(200, contact);
+                }
+                else
+                {
+                    return Unauthorized("Unauthorized request");
+                }
+
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
             }
 
 
         }
 
-        [HttpDelete("{id:guid}")]
-        public async Task<IActionResult> DeleteContact([FromRoute] Guid id)
+        [HttpPut("{contactId:guid}")]
+        public async Task<IActionResult> UpdateContact([FromRoute] Guid contactId, UpdateContactDto contactToUpdate)
         {
-            var existingContact = await dbContext.Contacts.FindAsync(id);
+            try
+            {
+                var existingContact = await _contactsService.UpdateContact(contactId, contactToUpdate);
+                return StatusCode(200, existingContact);
+
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+        }
+
+        [HttpDelete("{contactId:guid}")]
+        public async Task<IActionResult> DeleteContact([FromRoute] Guid contactId)
+        {
+            var existingContact = await _dbContext.Contacts.FindAsync(contactId);
 
             if (existingContact != null)
             {
-                dbContext.Remove(existingContact);
-                dbContext.SaveChanges();
+                _dbContext.Remove(existingContact);
+                _dbContext.SaveChanges();
                 return Ok(existingContact);
             }
 
