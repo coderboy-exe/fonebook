@@ -36,9 +36,27 @@ namespace fonebook.Repositories.Services
             /*throw new NotImplementedException();*/
         }
 
-        public Task<Contact> DeleteContact(Guid contactId)
+        public async Task<Contact> DeleteContact(Guid userId, Guid contactId)
         {
-            throw new NotImplementedException();
+            var existingContact = await _dbContext.Contacts.FindAsync(contactId);
+
+            if (existingContact == null)
+            {
+                throw new Exception("Contact not found");
+            }
+
+            if (existingContact.UserId != userId)
+            {
+                throw new Exception("Unauthorized: this contact doen not belong to this user");
+            }
+            else
+            {
+                _dbContext.Remove(existingContact);
+                _dbContext.SaveChanges();
+
+                return existingContact;
+            }
+
         }
 
         public async Task<List<Contact>> GetAllContacts()
@@ -47,13 +65,20 @@ namespace fonebook.Repositories.Services
             /*throw new NotImplementedException();*/
         }
 
-        public async Task<Contact> GetContactById(Guid contactId)
+        public async Task<Contact> GetContactById(Guid? userId, Guid contactId)
         {
             var existingContact = await _dbContext.Contacts.FindAsync(contactId);
 
             if (existingContact == null)
             {
                 throw new Exception("This contact does not exist");
+            }
+            if (userId != null)
+            {
+                if (existingContact.UserId != userId)
+                {
+                    throw new Exception("Incorrect source UserId");
+                }
             }
             return existingContact;
             /*throw new NotImplementedException();*/
@@ -64,7 +89,7 @@ namespace fonebook.Repositories.Services
             return await _dbContext.Contacts.Where(c => c.UserId == userId).ToListAsync();
         }
 
-        public async Task<Contact> UpdateContact(Guid contactId, UpdateContactDto contactToUpdate)
+        public async Task<Contact> UpdateContact(Guid userId, Guid contactId, UpdateContactDto contactToUpdate)
         {
             var existingContact = await _dbContext.Contacts.FindAsync(contactId);
 
@@ -79,12 +104,52 @@ namespace fonebook.Repositories.Services
                 existingContact.Email = contactToUpdate.Email;
                 existingContact.Phone = contactToUpdate.Phone;
                 existingContact.Address = contactToUpdate.Address;
-                existingContact.UserId = contactToUpdate.UserId;
+                if (userId == existingContact.UserId)
+                {
+                    existingContact.UserId = userId;
+                }
+                else
+                {
+                    throw new Exception("Unauthorized: this contact does not belong to the user");
+                }
 
                 await _dbContext.SaveChangesAsync();
 
                 return existingContact;
             }
+            /*throw new NotImplementedException();*/
+        }
+
+        public async Task<Contact> ShareContact(Guid sourceUserId, Guid contactId, Guid destinationUserId)
+        {
+            var existingContact = await _dbContext.Contacts.FindAsync(contactId);
+
+            if (existingContact == null)
+            {
+                throw new Exception("Contact does not exist");
+            }
+
+            if (existingContact.UserId != sourceUserId)
+            {
+                throw new Exception("Unauthorized: the source user does not own this contact detail");
+            }
+
+
+            Contact sharedContact = new Contact()
+            {
+                Id = Guid.NewGuid(),
+                Address = existingContact.Address,
+                FirstName = existingContact.FirstName,
+                LastName = existingContact.LastName,
+                Email = existingContact.Email,
+                Phone = existingContact.Phone,
+                UserId = destinationUserId,
+            };
+
+            await _dbContext.Contacts.AddAsync(sharedContact);
+            await _dbContext.SaveChangesAsync();
+
+            return sharedContact;
             /*throw new NotImplementedException();*/
         }
     }

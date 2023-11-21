@@ -66,64 +66,77 @@ namespace fonebook.Controllers
 
         }
 
-        [HttpGet("{contactId:guid}")]
-        public async Task<IActionResult> GetSingleContact([FromRoute] Guid contactId)
+        [HttpGet("MyContacts/{contactId:guid}")]
+        public async Task<IActionResult> GetMyContactSingle([FromRoute] Guid contactId)
         {
             try
             {
-                var contact = await _contactsService.GetContactById(contactId);
-
                 var authenticatedUser = User.FindFirstValue("userId");
+                Guid parsedUserId = Guid.Parse(authenticatedUser);
 
-                if (contact.UserId == Guid.Parse(authenticatedUser))
-                {
-                    return StatusCode(200, contact);
-                }
-                else
-                {
-                    return Unauthorized("Unauthorized request");
-                }
+                var contact = await _contactsService.GetContactById(userId: parsedUserId, contactId);
+                return StatusCode(200, contact);
 
             }
             catch (Exception ex)
             {
                 return BadRequest(ex.Message);
             }
-
-
         }
 
-        [HttpPut("{contactId:guid}")]
+        [HttpPut("MyContacts/{contactId:guid}")]
         public async Task<IActionResult> UpdateContact([FromRoute] Guid contactId, UpdateContactDto contactToUpdate)
         {
             try
             {
-                var existingContact = await _contactsService.UpdateContact(contactId, contactToUpdate);
-                return StatusCode(200, existingContact);
+                var authenticatedUser = User.FindFirstValue("userId");
+                Guid parsedUserId = Guid.Parse(authenticatedUser);
+
+                var updatedContact = await _contactsService.UpdateContact(userId: parsedUserId, contactId, contactToUpdate);
+                return StatusCode(200, updatedContact);
 
             }
             catch(Exception ex)
             {
-                return BadRequest(ex.Message);
+                return Unauthorized(ex.Message);
             }
 
         }
 
-        [HttpDelete("{contactId:guid}")]
+        [HttpDelete("MyContacts/{contactId:guid}")]
         public async Task<IActionResult> DeleteContact([FromRoute] Guid contactId)
         {
-            var existingContact = await _dbContext.Contacts.FindAsync(contactId);
-
-            if (existingContact != null)
+            try
             {
-                _dbContext.Remove(existingContact);
-                _dbContext.SaveChanges();
-                return Ok(existingContact);
+                var authenticatedUser = User.FindFirstValue("userId");
+                Guid parsedUserId = Guid.Parse(authenticatedUser);
+
+                var deletedContact = await _contactsService.DeleteContact(userId: parsedUserId, contactId);
+                return StatusCode(200, deletedContact);
+
             }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
+        }
 
-            return NotFound();
+        [HttpPost("MyContacts/Share")]
+        public async Task<IActionResult> ShareContact(ShareContact shareContact)
+        {
+            try
+            {
+                var authenticatedUser = User.FindFirstValue("userId");
+                Guid parsedUserId = Guid.Parse(authenticatedUser);
 
+                var sharedContact = await _contactsService.ShareContact(sourceUserId: parsedUserId, contactId: shareContact.contactId, destinationUserId: shareContact.destinationUserId);
+                return StatusCode(200, sharedContact);
 
+            }
+            catch (Exception ex)
+            {
+                return Unauthorized(ex.Message);
+            }
         }
     }
 }
